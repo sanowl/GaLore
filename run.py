@@ -383,7 +383,7 @@ def main():
             if key not in checkpoint.keys():
                 print(f"key {key} not in checkpoint")
         model.load_state_dict(checkpoint, strict=False)
-        logger.info(f"Model successfully loaded (strict=False policy)")
+        logger.info("Model successfully loaded (strict=False policy)")
         logger.info("*" * 40)
         
     # project modules
