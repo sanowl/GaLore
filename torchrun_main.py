@@ -27,6 +27,7 @@ from peft_pretraining.modeling_llama import LlamaForCausalLM
 
 import bitsandbytes as bnb
 from galore_torch import GaLoreAdamW, GaLoreAdamW8bit, GaLoreAdafactor
+import math
 
 transformers.logging.set_verbosity_error()
 
@@ -298,7 +299,7 @@ def main(args):
         optimizer = torch.optim.SGD(trainable_params, lr=args.lr, weight_decay=args.weight_decay, momentum=args.beta1)
     # implement adafactor
     elif args.optimizer.lower() == "adafactor":
-        args.beta1 = None if args.beta1 == 0.0 else args.beta1
+        args.beta1 = None if math.isclose(args.beta1, 0.0, rel_tol=1e-09, abs_tol=0.0) else args.beta1
         optimizer = transformers.optimization.Adafactor(
             trainable_params,
             lr=args.lr,
@@ -313,7 +314,7 @@ def main(args):
         )
     # low-rank adafactor
     elif args.optimizer.lower() == "galore_adafactor":
-        args.beta1 = None if args.beta1 == 0.0 else args.beta1
+        args.beta1 = None if math.isclose(args.beta1, 0.0, rel_tol=1e-09, abs_tol=0.0) else args.beta1
         optimizer = GaLoreAdafactor(
             param_groups,
             lr=args.lr,
@@ -423,7 +424,7 @@ def main(args):
         # The below code is only executed during the update step
         
         # add grad clipping
-        if args.grad_clipping != 0.0: torch.nn.utils.clip_grad_norm_(trainable_params, args.grad_clipping)
+        if not math.isclose(args.grad_clipping, 0.0, rel_tol=1e-09, abs_tol=0.0): torch.nn.utils.clip_grad_norm_(trainable_params, args.grad_clipping)
 
         if global_rank == 0: pbar.update(1)
         
