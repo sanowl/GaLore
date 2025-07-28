@@ -1,7 +1,6 @@
 import os
 import time
 import json
-import random
 import argparse
 import numpy as np
 
@@ -27,6 +26,7 @@ from peft_pretraining.modeling_llama import LlamaForCausalLM
 
 import bitsandbytes as bnb
 from galore_torch import GaLoreAdamW, GaLoreAdamW8bit, GaLoreAdafactor
+import secrets
 
 transformers.logging.set_verbosity_error()
 
@@ -129,7 +129,7 @@ def evaluate_model(model, preprocess_batched, pad_idx, global_rank, world_size, 
 def main(args):
     torch.manual_seed(args.seed)
     np.random.seed(args.seed)
-    random.seed(args.seed)
+    secrets.SystemRandom().seed(args.seed)
 
     assert "LOCAL_RANK" in os.environ, "torchrun should set LOCAL_RANK"
     global_rank = int(os.environ['RANK'])
